@@ -1,7 +1,10 @@
-const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args));
+export const config = {
+  runtime: "nodejs"
+};
 
-export default async function handler(req, res) {
+const fetch = require("node-fetch");
+
+module.exports = async (req, res) => {
   try {
     const productUrl = req.query.url;
 
@@ -9,23 +12,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing url parameter" });
     }
 
-    // Scarica l’HTML della pagina Amazon
     const response = await fetch(productUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
+      headers: { "User-Agent": "Mozilla/5.0" }
     });
 
     const html = await response.text();
-
-    // Estrazione dell’immagine dal tag Open Graph
     const match = html.match(/<meta property="og:image" content="(.*?)"/);
 
     return res.status(200).json({
       image: match ? match[1] : null
     });
-  } catch (error) {
-    console.error("ERROR:", error);
+
+  } catch (err) {
+    console.error("ERROR:", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
