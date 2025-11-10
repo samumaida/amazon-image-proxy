@@ -5,6 +5,15 @@ export const config = {
 const fetch = require("node-fetch");
 
 module.exports = async (req, res) => {
+  // ✅ Header CORS
+  res.setHeader("Access-Control-Allow-Origin", "*"); // permette tutte le origini
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end(); // risposta per preflight CORS
+  }
+
   try {
     const productUrl = req.query.url;
 
