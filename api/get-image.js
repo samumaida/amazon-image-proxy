@@ -17,11 +17,26 @@ module.exports = async (req, res) => {
     });
 
     const html = await response.text();
-    const match = html.match(/<meta property="og:image" content="(.*?)"/);
 
-    return res.status(200).json({
-      image: match ? match[1] : null
-    });
+    let image = null;
+
+    // 1) og:image
+    let match = html.match(/<meta property="og:image" content="(.*?)"/);
+    if (match) image = match[1];
+
+    // 2) data-old-hires
+    if (!image) {
+      match = html.match(/"data-old-hires"\s*:\s*"([^"]+)"/);
+      if (match) image = match[1];
+    }
+
+    // 3) hiRes
+    if (!image) {
+      match = html.match(/"hiRes":"(.*?)"/);
+      if (match) image = match[1];
+    }
+
+    return res.status(200).json({ image });
 
   } catch (err) {
     console.error("ERROR:", err);
